@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.22.1)
 project("term")
+
 add_library(term SHARED pty.c)
+
 find_library(log-lib log)
-target_link_libraries(term ${log-lib} util)
+
+target_link_libraries(
+    term
+    ${log-lib}
+)
