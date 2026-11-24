@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<link rel="stylesheet" href="xterm.css">
+<style>
+  html, body { margin:0; padding:0; background:#000; height:100%; overflow:hidden; }
+  #term { width:100%; height:100%; padding:4px; box-sizing:border-box; }
+</style>
+</head>
+<body>
+<div id="term"></div>
+<script src="xterm.js"></script>
+<script src="xterm-addon-fit.js"></script>
+<script>
+  const term = new Terminal({
+    cursorBlink: true,
+    fontSize: 14,
+    fontFamily: "monospace",
+    theme: { background: "#000000", foreground: "#e0e0e0" },
+    scrollback: 5000
+  });
+  const fit = new FitAddon.FitAddon();
+  term.loadAddon(fit);
+  term.open(document.getElementById('term'));
+  fit.fit();
+
+  term.onData(d => AndroidTerm.onInput(d));
+
+  window.writeOutput = function (b64) {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    term.write(bytes);
+  };
+
+  window.doResize = function () {
+    fit.fit();
+    AndroidTerm.onResize(term.rows, term.cols);
+  };
+
+  window.addEventListener('resize', window.doResize);
+  setTimeout(function () { window.doResize(); AndroidTerm.ready(); }, 150);
+</script>
+</body>
+</html>
